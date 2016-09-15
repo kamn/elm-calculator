@@ -20,7 +20,7 @@ model =
   0
 
 -- Update
-
+type Operation = Addition | Subtraction | Multiplication | Division
 type alias Msg = Int
 
 update: Msg -> Model -> Model
@@ -45,7 +45,11 @@ view model =
       div [] [button [onClick 7] [text "7"],
               button [onClick 8] [text "8"],
               button [onClick 9] [text "9"]],
-      div [] [button [onClick 0] [text "0"]]]]
+      div [] [button [onClick 0] [text "0"]],
+      div [] [button [] [text "+"],
+              button [] [text "-"],
+              button [] [text "*"],
+              button [] [text "/"]]]]
 
 main =
   App.beginnerProgram { model = model, view = view, update = update }

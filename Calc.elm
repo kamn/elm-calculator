@@ -28,16 +28,37 @@ model =
   , operation = None
   }
 
+
+
 -- Update
 type Msg = Number Int | Op Operation
+
+
+calcNewValue: Int -> Model -> Model
+calcNewValue val model =
+  case model.operation of
+    Addition ->
+      {operation = None, value = val + model.value}
+    Subtraction ->
+      model
+    Multiplication ->
+      model
+    Division ->
+      model
+    None ->
+      {model | value = val}
 
 update: Msg -> Model -> Model
 update msg model =
   case msg of
     Number n ->
-      {model | value = n}
+      calcNewValue n model
     Op o ->
-      {model | operation = o}
+      case o of
+        None ->
+          {value = 0, operation = o}
+        _ ->
+          {model | operation = o}
 
 
 -- VIEW
@@ -46,8 +67,8 @@ view: Model -> Html Msg
 view model =
   div [style centerStyle] [
     div [] [
-      text "Calculator",
       div [] [text (toString model)],
+      div [] [text (toString model.value)],
       div [] [button [onClick (Number 1)] [text "1"],
               button [onClick (Number 2)] [text "2"],
               button [onClick (Number 3)] [text "3"]],
@@ -61,7 +82,8 @@ view model =
       div [] [button [onClick (Op Addition)] [text "+"],
               button [onClick (Op Subtraction)] [text "-"],
               button [onClick (Op Multiplication)] [text "*"],
-              button [onClick (Op Division)] [text "/"]]]]
+              button [onClick (Op Division)] [text "/"]],
+      div [] [button [onClick (Op None)] [text "C"]]]]
 
 main =
   App.beginnerProgram { model = model, view = view, update = update }

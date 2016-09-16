@@ -13,19 +13,31 @@ centerStyle =
     ("height", "100vh")]
 
 -- MODEL
-type alias Model = Int
+type Operation = Addition | Subtraction | Multiplication | Division | None
+
+type alias Model =
+  {
+    value : Int,
+    operation : Operation
+  }
 
 model: Model
 model =
-  0
+  {
+    value = 0
+  , operation = None
+  }
 
 -- Update
-type Operation = Addition | Subtraction | Multiplication | Division
-type alias Msg = Int
+type Msg = Number Int | Op Operation
 
 update: Msg -> Model -> Model
 update msg model =
-  msg
+  case msg of
+    Number n ->
+      {model | value = n}
+    Op o ->
+      {model | operation = o}
 
 
 -- VIEW
@@ -36,20 +48,20 @@ view model =
     div [] [
       text "Calculator",
       div [] [text (toString model)],
-      div [] [button [onClick 1] [text "1"],
-              button [onClick 2] [text "2"],
-              button [onClick 3] [text "3"]],
-      div [] [button [onClick 4] [text "4"],
-              button [onClick 5] [text "5"],
-              button [onClick 6] [text "6"]],
-      div [] [button [onClick 7] [text "7"],
-              button [onClick 8] [text "8"],
-              button [onClick 9] [text "9"]],
-      div [] [button [onClick 0] [text "0"]],
-      div [] [button [] [text "+"],
-              button [] [text "-"],
-              button [] [text "*"],
-              button [] [text "/"]]]]
+      div [] [button [onClick (Number 1)] [text "1"],
+              button [onClick (Number 2)] [text "2"],
+              button [onClick (Number 3)] [text "3"]],
+      div [] [button [onClick (Number 4)] [text "4"],
+              button [onClick (Number 5)] [text "5"],
+              button [onClick (Number 6)] [text "6"]],
+      div [] [button [onClick (Number 7)] [text "7"],
+              button [onClick (Number 8)] [text "8"],
+              button [onClick (Number 9)] [text "9"]],
+      div [] [button [onClick (Number 0)] [text "0"]],
+      div [] [button [onClick (Op Addition)] [text "+"],
+              button [onClick (Op Subtraction)] [text "-"],
+              button [onClick (Op Multiplication)] [text "*"],
+              button [onClick (Op Division)] [text "/"]]]]
 
 main =
   App.beginnerProgram { model = model, view = view, update = update }

@@ -50,7 +50,7 @@ calcNewValue val model =
             Calculate ->
               {list = [Number 0]}
             _ ->
-              model
+              {list = (Number val) :: model.list}
 
 update: Msg -> Model -> Model
 update msg model =

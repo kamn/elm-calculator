@@ -4,6 +4,7 @@ import Html exposing (Html, text, div, button)
 import Html.App as App
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Array as Array
 
 centerStyle : List (String, String)
 centerStyle =
@@ -13,40 +14,44 @@ centerStyle =
     ("height", "100vh")]
 
 -- MODEL
+type Msg = Number Int | Op Operation
+
 type Operation = Addition | Subtraction | Multiplication | Division | None
+
 
 type alias Model =
   {
-    value : Int,
-    operation : Operation
+    list : List Msg
   }
 
-model: Model
-model =
+baseModel: Model
+baseModel =
   {
-    value = 0
-  , operation = None
+    list = [Number 0]
   }
-
-
 
 -- Update
-type Msg = Number Int | Op Operation
-
 
 calcNewValue: Int -> Model -> Model
 calcNewValue val model =
-  case model.operation of
-    Addition ->
-      {operation = None, value = val + model.value}
-    Subtraction ->
-      model
-    Multiplication ->
-      model
-    Division ->
-      model
-    None ->
-      {model | value = val}
+  case List.head model.list of
+    Nothing -> model
+    Just value ->
+      case value of
+        Number n ->
+          model
+        Op o ->
+          case o of
+            Addition ->
+              {list = [Number 0]}
+            Subtraction ->
+              model
+            Multiplication ->
+              model
+            Division ->
+              model
+            None ->
+              {list = [Number 0]}
 
 update: Msg -> Model -> Model
 update msg model =
@@ -56,9 +61,9 @@ update msg model =
     Op o ->
       case o of
         None ->
-          {value = 0, operation = o}
+          {list = [Number 0]}
         _ ->
-          {model | operation = o}
+          {list = (Op o) :: model.list}
 
 
 -- VIEW
@@ -68,7 +73,7 @@ view model =
   div [style centerStyle] [
     div [] [
       div [] [text (toString model)],
-      div [] [text (toString model.value)],
+      div [] [text (toString model.list)],
       div [] [button [onClick (Number 1)] [text "1"],
               button [onClick (Number 2)] [text "2"],
               button [onClick (Number 3)] [text "3"]],
@@ -83,7 +88,8 @@ view model =
               button [onClick (Op Subtraction)] [text "-"],
               button [onClick (Op Multiplication)] [text "*"],
               button [onClick (Op Division)] [text "/"]],
-      div [] [button [onClick (Op None)] [text "C"]]]]
+      div [] [button [onClick (Op None)] [text "C"],
+              button [onClick (Op None)] [text "="]]]]
 
 main =
-  App.beginnerProgram { model = model, view = view, update = update }
+  App.beginnerProgram { model = baseModel, view = view, update = update }

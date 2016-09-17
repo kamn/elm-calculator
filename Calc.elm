@@ -39,7 +39,11 @@ calcNewValue val model =
     Just value ->
       case value of
         Number n ->
-          model
+          case (List.tail model.list) of
+            Just rest ->
+              {list = (Number ((n * 10) + val)) :: rest}
+            Nothing ->
+              {list = [Number 0]}
         Op o ->
           case o of
             Addition ->

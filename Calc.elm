@@ -5,6 +5,7 @@ import Html.App as App
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Array as Array
+import String as String
 
 centerStyle : List (String, String)
 centerStyle =
@@ -16,7 +17,7 @@ centerStyle =
 -- MODEL
 type Msg = Number Int | Op Operation
 
-type Operation = Addition | Subtraction | Multiplication | Division | None
+type Operation = Addition | Subtraction | Multiplication | Division | None | Calculate
 
 
 type alias Model =
@@ -46,16 +47,10 @@ calcNewValue val model =
               {list = [Number 0]}
         Op o ->
           case o of
-            Addition ->
+            Calculate ->
               {list = [Number 0]}
-            Subtraction ->
+            _ ->
               model
-            Multiplication ->
-              model
-            Division ->
-              model
-            None ->
-              {list = [Number 0]}
 
 update: Msg -> Model -> Model
 update msg model =
@@ -72,12 +67,32 @@ update msg model =
 
 -- VIEW
 
+msgToString: Msg -> String
+msgToString msg =
+  case msg of
+    Number n -> toString n
+    Op o ->
+      case o of
+        Addition -> "+"
+        Subtraction -> "-"
+        Multiplication -> "*"
+        Division -> "/"
+        _ -> ""
+
+listToString: List Msg -> String
+listToString list =
+  list
+    |> List.reverse
+    |> List.map msgToString
+    |> String.join " "
+
 view: Model -> Html Msg
 view model =
   div [style centerStyle] [
     div [] [
       div [] [text (toString model)],
       div [] [text (toString model.list)],
+      div [] [text (listToString model.list)],
       div [] [button [onClick (Number 1)] [text "1"],
               button [onClick (Number 2)] [text "2"],
               button [onClick (Number 3)] [text "3"]],

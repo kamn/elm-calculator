@@ -33,6 +33,34 @@ baseModel =
 
 -- Update
 
+type alias ExpressionHelper =
+  {
+    value: Int,
+    operation: Operation
+  }
+
+defaultExprHelper = {value = 0, operation = None}
+
+exprToMsg: ExpressionHelper -> Msg
+exprToMsg expr =
+  Number expr.value
+
+foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
+foldExpr msg expr =
+  case msg of
+    Number n ->
+      {expr | value = expr.value + n}
+    Op o ->
+      {expr | operation = o}
+
+{--}
+calcExpression: List Msg -> Msg
+calcExpression list =
+  list
+    |> List.foldr foldExpr defaultExprHelper
+    |> exprToMsg
+--}
+
 calcNewValue: Int -> Model -> Model
 calcNewValue val model =
   case List.head model.list of
@@ -48,7 +76,7 @@ calcNewValue val model =
         Op o ->
           case o of
             Calculate ->
-              {list = [Number 0]}
+              {list = [(calcExpression model.list)]}
             _ ->
               {list = (Number val) :: model.list}
 
@@ -61,6 +89,8 @@ update msg model =
       case o of
         None ->
           {list = [Number 0]}
+        Calculate ->
+          {list = [(calcExpression model.list)]}
         _ ->
           {list = (Op o) :: model.list}
 
@@ -108,7 +138,7 @@ view model =
               button [onClick (Op Multiplication)] [text "*"],
               button [onClick (Op Division)] [text "/"]],
       div [] [button [onClick (Op None)] [text "C"],
-              button [onClick (Op None)] [text "="]]]]
+              button [onClick (Op Calculate)] [text "="]]]]
 
 main =
   App.beginnerProgram { model = baseModel, view = view, update = update }

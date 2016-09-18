@@ -49,7 +49,13 @@ foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
 foldExpr msg expr =
   case msg of
     Number n ->
-      {expr | value = expr.value + n}
+      case expr.operation of
+        Addition -> {expr | value = n + expr.value}
+        Subtraction -> {expr | value = n - expr.value}
+        Multiplication -> {expr | value = n * expr.value}
+        Division -> {expr | value = n + expr.value}
+        None -> {expr | value = n}
+        _ -> expr
     Op o ->
       {expr | operation = o}
 

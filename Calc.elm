@@ -51,7 +51,7 @@ foldExpr msg expr =
     Number n ->
       case expr.operation of
         Addition -> {expr | value = n + expr.value}
-        Subtraction -> {expr | value = n - expr.value}
+        Subtraction -> {expr | value = expr.value - n}
         Multiplication -> {expr | value = n * expr.value}
         Division -> {expr | value = n + expr.value}
         None -> {expr | value = n}

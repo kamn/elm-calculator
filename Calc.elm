@@ -7,12 +7,17 @@ import Html.Events exposing (onClick)
 import Array as Array
 import String as String
 
+-- STYLES
 centerStyle : List (String, String)
 centerStyle =
   [ ("display", "flex"),
     ("align-items", "center"),
     ("justify-content", "center"),
     ("height", "100vh")]
+
+alignTextRight : List (String, String)
+alignTextRight =
+  [ ("text-align", "right")]
 
 -- MODEL
 type Msg = Number Int | Op Operation
@@ -128,7 +133,7 @@ view model =
     div [] [
       div [] [text (toString model)],
       div [] [text (toString model.list)],
-      div [] [text (listToString model.list)],
+      div [style alignTextRight] [text (listToString model.list)],
       div [] [button [onClick (Number 1)] [text "1"],
               button [onClick (Number 2)] [text "2"],
               button [onClick (Number 3)] [text "3"]],

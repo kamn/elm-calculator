@@ -101,7 +101,7 @@ update msg model =
         None ->
           {model | list = [Number 0]}
         Calculate ->
-          {model | list = [(calcExpression model.list)]}
+          {model | list = [(calcExpression model.list)], history = model.list :: model.history}
         _ ->
           {model | list = (Op o) :: model.list}
 

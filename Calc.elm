@@ -22,13 +22,15 @@ type Operation = Addition | Subtraction | Multiplication | Division | None | Cal
 
 type alias Model =
   {
-    list : List Msg
+    list : List Msg,
+    history : List (List Msg)
   }
 
 baseModel: Model
 baseModel =
   {
-    list = [Number 0]
+    list = [Number 0],
+    history = []
   }
 
 -- Update
@@ -59,13 +61,11 @@ foldExpr msg expr =
     Op o ->
       {expr | operation = o}
 
-{--}
 calcExpression: List Msg -> Msg
 calcExpression list =
   list
     |> List.foldr foldExpr defaultExprHelper
     |> exprToMsg
---}
 
 calcNewValue: Int -> Model -> Model
 calcNewValue val model =
@@ -76,15 +76,15 @@ calcNewValue val model =
         Number n ->
           case (List.tail model.list) of
             Just rest ->
-              {list = (Number ((n * 10) + val)) :: rest}
+              {model | list = (Number ((n * 10) + val)) :: rest}
             Nothing ->
-              {list = [Number 0]}
+              {model | list = [Number 0]}
         Op o ->
           case o of
             Calculate ->
-              {list = [(calcExpression model.list)]}
+              {model | list = [(calcExpression model.list)]}
             _ ->
-              {list = (Number val) :: model.list}
+              {model | list = (Number val) :: model.list}
 
 update: Msg -> Model -> Model
 update msg model =
@@ -94,11 +94,11 @@ update msg model =
     Op o ->
       case o of
         None ->
-          {list = [Number 0]}
+          {model | list = [Number 0]}
         Calculate ->
-          {list = [(calcExpression model.list)]}
+          {model | list = [(calcExpression model.list)]}
         _ ->
-          {list = (Op o) :: model.list}
+          {model | list = (Op o) :: model.list}
 
 
 -- VIEW

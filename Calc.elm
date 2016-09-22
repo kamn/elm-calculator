@@ -22,7 +22,7 @@ alignTextRight =
 -- MODEL
 type Msg = Number Int | Op Operation
 
-type Operation = Addition | Subtraction | Multiplication | Division | None | Calculate
+type Operation = Addition | Subtraction | Multiplication | Division | None | ClearLast | Calculate
 
 
 type alias Model =
@@ -102,6 +102,12 @@ update msg model =
           {model | list = [Number 0]}
         Calculate ->
           {model | list = [(calcExpression model.list)], history = model.list :: model.history}
+        ClearLast ->
+          case List.tail model.list of
+            Just rest ->
+              {model | list = rest }
+            Nothing ->
+              model
         _ ->
           {model | list = (Op o) :: model.list}
 
@@ -149,6 +155,7 @@ view model =
               button [onClick (Op Multiplication)] [text "*"],
               button [onClick (Op Division)] [text "/"]],
       div [] [button [onClick (Op None)] [text "C"],
+              button [onClick (Op ClearLast)] [text "CE"],
               button [onClick (Op Calculate)] [text "="]]]]
 
 main =

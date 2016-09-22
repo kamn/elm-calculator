@@ -52,6 +52,17 @@ exprToMsg: ExpressionHelper -> Msg
 exprToMsg expr =
   Number expr.value
 
+tailOfList: Model -> Model
+tailOfList model =
+  case (List.tail model.list) of
+    Just rest ->
+      if List.isEmpty rest then
+        {model | list = [Number 0]}
+      else
+        {model | list = rest}
+    Nothing ->
+      {model | list = [Number 0]}
+
 foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
 foldExpr msg expr =
   case msg of
@@ -102,12 +113,7 @@ update msg model =
           {model | list = [Number 0]}
         Calculate ->
           {model | list = [(calcExpression model.list)], history = model.list :: model.history}
-        ClearLast ->
-          case List.tail model.list of
-            Just rest ->
-              {model | list = rest }
-            Nothing ->
-              model
+        ClearLast -> tailOfList model
         _ ->
           {model | list = (Op o) :: model.list}
 

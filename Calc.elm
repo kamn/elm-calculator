@@ -52,16 +52,24 @@ exprToMsg: ExpressionHelper -> Msg
 exprToMsg expr =
   Number expr.value
 
+-- TODO: Doc
 tailOfList: Model -> Model
 tailOfList model =
   case (List.tail model.list) of
     Just rest ->
-      if List.isEmpty rest then
-        {model | list = [Number 0]}
-      else
-        {model | list = rest}
+      {model | list = rest}
     Nothing ->
       {model | list = [Number 0]}
+
+appendNumber: Msg -> Model -> Model
+appendNumber msg model =
+  {model | list = msg :: model.list}
+
+ensureListWithZero: Model -> Model
+ensureListWithZero model =
+  if List.isEmpty model.list then
+    {model | list = [Number 0]}
+  else model
 
 foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
 foldExpr msg expr =
@@ -90,11 +98,9 @@ calcNewValue val model =
     Just value ->
       case value of
         Number n ->
-          case (List.tail model.list) of
-            Just rest ->
-              {model | list = (Number ((n * 10) + val)) :: rest}
-            Nothing ->
-              {model | list = [Number 0]}
+          model
+          |> tailOfList
+          |> appendNumber (Number ((n * 10) + val))
         Op o ->
           case o of
             Calculate ->
@@ -113,7 +119,9 @@ update msg model =
           {model | list = [Number 0]}
         Calculate ->
           {model | list = [(calcExpression model.list)], history = model.list :: model.history}
-        ClearLast -> tailOfList model
+        ClearLast -> model
+          |> tailOfList
+          |> ensureListWithZero
         _ ->
           {model | list = (Op o) :: model.list}
 

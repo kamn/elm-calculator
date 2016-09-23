@@ -147,6 +147,11 @@ listToString list =
     |> List.map msgToString
     |> String.join " "
 
+calcBtn: String -> Msg -> Html Msg
+calcBtn string msg =
+  button [onClick msg] [text string]
+
+
 view: Model -> Html Msg
 view model =
   div [style centerStyle] [
@@ -154,27 +159,26 @@ view model =
       div [] [text (toString model)],
       div [] [text (toString model.list)],
       div [style alignTextRight] [text (listToString model.list)],
-      div [] [button [onClick (Op None)] [text "("],
-              button [onClick (Op None)] [text ")"],
-              button [onClick (Op None)] [text "C"],
-              button [onClick (Op ClearLast)] [text "CE"]
-              ],
-      div [] [button [onClick (Number 7)] [text "7"],
-              button [onClick (Number 8)] [text "8"],
-              button [onClick (Number 9)] [text "9"],
-              button [onClick (Op Division)] [text "/"]],
-      div [] [button [onClick (Number 4)] [text "4"],
-              button [onClick (Number 5)] [text "5"],
-              button [onClick (Number 6)] [text "6"],
-              button [onClick (Op Multiplication)] [text "*"]],
-      div [] [button [onClick (Number 1)] [text "1"],
-              button [onClick (Number 2)] [text "2"],
-              button [onClick (Number 3)] [text "3"],
-              button [onClick (Op Subtraction)] [text "-"]],
-      div [] [button [onClick (Number 0)] [text "0"],
-              button [onClick (Op None)] [text "."],
-              button [onClick (Op Calculate)] [text "="],
-              button [onClick (Op Addition)] [text "+"]]]]
+      div [] [calcBtn "(" (Op None),
+              calcBtn ")" (Op None),
+              calcBtn "C" (Op None),
+              calcBtn "CE" (Op ClearLast)],
+      div [] [calcBtn "7" (Number 7),
+              calcBtn "8" (Number 8),
+              calcBtn "9" (Number 9),
+              calcBtn "/" (Op Division)],
+      div [] [calcBtn "4" (Number 4),
+              calcBtn "5" (Number 5),
+              calcBtn "6" (Number 6),
+              calcBtn "*" (Op Multiplication)],
+      div [] [calcBtn "1" (Number 1),
+              calcBtn "2" (Number 2),
+              calcBtn "3" (Number 3),
+              calcBtn "-" (Op Subtraction)],
+      div [] [calcBtn "0" (Number 0),
+              calcBtn "." (Op None),
+              calcBtn "=" (Op Calculate),
+              calcBtn "+" (Op Addition)]]]
 
 main =
   App.beginnerProgram { model = baseModel, view = view, update = update }

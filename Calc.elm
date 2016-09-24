@@ -19,6 +19,14 @@ alignTextRight : List (String, String)
 alignTextRight =
   [ ("text-align", "right")]
 
+btnStyle : List (String, String)
+btnStyle =
+  [ ("width", "50px"),
+    ("height", "50px"),
+    ("border-radius", "2px"),
+    ("background-color", "rgba(158,158,158,.2)")]
+
+
 -- MODEL
 type Msg = Number Float | Op Operation
 
@@ -121,8 +129,6 @@ calcNewValue val model =
             |> appendNumber (Number ((n * 10) + val))
         Op o ->
           case o of
-            Calculate ->
-              {model | list = [(calcExpression model.list)], decimal = False, decimalOffset = 10}
             _ ->
               {model | list = (Number val) :: model.list}
 
@@ -169,7 +175,7 @@ listToString list =
 
 calcBtn: String -> Msg -> Html Msg
 calcBtn string msg =
-  button [onClick msg] [text string]
+  button [onClick msg, style btnStyle] [text string]
 
 
 view: Model -> Html Msg

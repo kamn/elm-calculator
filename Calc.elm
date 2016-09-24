@@ -20,7 +20,7 @@ alignTextRight =
   [ ("text-align", "right")]
 
 -- MODEL
-type Msg = Number Int | Op Operation
+type Msg = Number Float | Op Operation
 
 type Operation = Addition | Subtraction | Multiplication | Division | None | ClearLast | Calculate
 
@@ -42,7 +42,7 @@ baseModel =
 
 type alias ExpressionHelper =
   {
-    value: Int,
+    value: Float,
     operation: Operation
   }
 
@@ -91,7 +91,7 @@ calcExpression list =
     |> List.foldr foldExpr defaultExprHelper
     |> exprToMsg
 
-calcNewValue: Int -> Model -> Model
+calcNewValue: Float -> Model -> Model
 calcNewValue val model =
   case List.head model.list of
     Nothing -> model

@@ -22,20 +22,28 @@ alignTextRight =
 -- MODEL
 type Msg = Number Float | Op Operation
 
-type Operation = Addition | Subtraction | Multiplication | Division | None | ClearLast | Calculate
+type Operation =
+  Addition | Subtraction
+  | Multiplication | Division
+  | None | ClearLast | Calculate
+  | Dot
 
 
 type alias Model =
   {
     list : List Msg,
-    history : List (List Msg)
+    history : List (List Msg),
+    decimal: Bool,
+    decimalOffset: Float
   }
 
 baseModel: Model
 baseModel =
   {
     list = [Number 0],
-    history = []
+    history = [],
+    decimal = False,
+    decimalOffset = 10
   }
 
 -- Update
@@ -85,6 +93,10 @@ foldExpr msg expr =
     Op o ->
       {expr | operation = o}
 
+increaseDecimalOffset: Model -> Model
+increaseDecimalOffset model =
+  {model | decimalOffset = model.decimalOffset * 10}
+
 calcExpression: List Msg -> Msg
 calcExpression list =
   list
@@ -98,13 +110,19 @@ calcNewValue val model =
     Just value ->
       case value of
         Number n ->
-          model
-          |> tailOfList
-          |> appendNumber (Number ((n * 10) + val))
+          if model.decimal then
+            model
+            |> tailOfList
+            |> appendNumber (Number (n + (val / model.decimalOffset)))
+            |> increaseDecimalOffset
+          else
+            model
+            |> tailOfList
+            |> appendNumber (Number ((n * 10) + val))
         Op o ->
           case o of
             Calculate ->
-              {model | list = [(calcExpression model.list)]}
+              {model | list = [(calcExpression model.list)], decimal = False, decimalOffset = 10}
             _ ->
               {model | list = (Number val) :: model.list}
 
@@ -118,10 +136,12 @@ update msg model =
         None ->
           {model | list = [Number 0]}
         Calculate ->
-          {model | list = [(calcExpression model.list)], history = model.list :: model.history}
+          {model | list = [(calcExpression model.list)], history = model.list :: model.history, decimal = False, decimalOffset = 10}
         ClearLast -> model
           |> tailOfList
           |> ensureListWithZero
+        Dot ->
+          {model | decimal = (not model.decimal)}
         _ ->
           {model | list = (Op o) :: model.list}
 
@@ -176,7 +196,7 @@ view model =
               calcBtn "3" (Number 3),
               calcBtn "-" (Op Subtraction)],
       div [] [calcBtn "0" (Number 0),
-              calcBtn "." (Op None),
+              calcBtn "." (Op Dot),
               calcBtn "=" (Op Calculate),
               calcBtn "+" (Op Addition)]]]
 

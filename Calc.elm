@@ -87,6 +87,27 @@ ensureListWithZero model =
     {model | list = [Number 0]}
   else model
 
+-- The list fold does not work well for order of operations
+-- A better alternative would be building a tree then calculating off of the tree
+-- Ex.
+-- 1 - 2 * 5
+--      -
+--    /  \
+--  1     *
+--       / \
+--      2   5
+-- Then we could recurse down each side to get a good result
+
+type TreeMsg
+  = Empty
+  | Node Msg (TreeMsg) (TreeMsg)
+
+listToMap: List Msg -> TreeMsg
+listToMap msgs =
+  Empty
+
+
+
 foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
 foldExpr msg expr =
   case msg of

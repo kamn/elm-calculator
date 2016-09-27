@@ -34,7 +34,7 @@ type Operation =
   Addition | Subtraction
   | Multiplication | Division
   | None | ClearLast | Calculate
-  | Dot
+  | Dot | Clear
 
 
 type alias Model =
@@ -96,7 +96,7 @@ foldExpr msg expr =
         Subtraction -> {expr | value = expr.value - n}
         Multiplication -> {expr | value = n * expr.value}
         Division -> {expr | value = n + expr.value}
-        None -> {expr | value = n}
+        Clear -> {expr | value = n}
         _ -> expr
     Op o ->
       {expr | operation = o}
@@ -139,7 +139,8 @@ update msg model =
       calcNewValue n model
     Op o ->
       case o of
-        None ->
+        None -> model
+        Clear ->
           {model | list = [Number 0]}
         Calculate ->
           {model | list = [(calcExpression model.list)], history = model.list :: model.history, decimal = False, decimalOffset = 10}

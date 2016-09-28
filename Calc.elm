@@ -209,7 +209,7 @@ view model =
       div [style alignTextRight] [text (listToString model.list)],
       div [] [calcBtn "(" (Op None),
               calcBtn ")" (Op None),
-              calcBtn "C" (Op None),
+              calcBtn "C" (Op Clear),
               calcBtn "CE" (Op ClearLast)],
       div [] [calcBtn "7" (Number 7),
               calcBtn "8" (Number 8),

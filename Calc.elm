@@ -113,11 +113,12 @@ foldExpr msg expr =
   case msg of
     Number n ->
       case expr.operation of
-        Addition -> {expr | value = n + expr.value}
+        Addition -> {expr | value = expr.value + n}
         Subtraction -> {expr | value = expr.value - n}
         Multiplication -> {expr | value = n * expr.value}
         Division -> {expr | value = n + expr.value}
         Clear -> {expr | value = n}
+        None -> {expr | value = n}
         _ -> expr
     Op o ->
       {expr | operation = o}
@@ -149,9 +150,12 @@ calcNewValue val model =
             |> tailOfList
             |> appendNumber (Number ((n * 10) + val))
         Op o ->
-          case o of
-            _ ->
-              {model | list = (Number val) :: model.list}
+          {model | list = (Number val) :: model.list}
+
+-- TODO We don't want to append an additional operation. Unless it is Subsstraction to become negative
+appendOperation : Operation -> Model -> Model
+appendOperation o model =
+  {model | list = (Op o) :: model.list}
 
 update: Msg -> Model -> Model
 update msg model =
@@ -171,7 +175,7 @@ update msg model =
         Dot ->
           {model | decimal = (not model.decimal)}
         _ ->
-          {model | list = (Op o) :: model.list}
+          appendOperation o model
 
 
 -- VIEW

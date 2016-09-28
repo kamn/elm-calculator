@@ -162,7 +162,7 @@ update msg model =
       case o of
         None -> model
         Clear ->
-          {model | list = [Number 0]}
+          {model | list = [Number 0], decimal = False, decimalOffset = 10}
         Calculate ->
           {model | list = [(calcExpression model.list)], history = model.list :: model.history, decimal = False, decimalOffset = 10}
         ClearLast -> model

@@ -103,21 +103,44 @@ type TreeMsg =
   Empty
   | Node Msg TreeMsg TreeMsg
 
+insertRightMost: Msg -> TreeMsg -> TreeMsg
+insertRightMost msg treeMsg =
+  case treeMsg of
+    Node oldMsg left right ->
+      Node oldMsg left (insertRightMost msg right)
+    Empty ->
+      Node msg Empty Empty
+
 insert: Msg -> TreeMsg -> TreeMsg
 insert msg treeMsg =
   case msg of
     Op o ->
-      Node msg treeMsg Empty
+      case o of
+        Subtraction ->
+          Node msg treeMsg Empty
+        Addition ->
+          Node msg treeMsg Empty
+        Multiplication ->
+          case treeMsg of
+            Node oldMsg left right ->
+              Debug.log "Multiplication" (Node oldMsg left (Node msg right Empty))
+            _ ->
+              Node msg treeMsg Empty
+        Division ->
+          case treeMsg of
+            Node oldMsg left right ->
+              Node oldMsg left (Node msg right Empty)
+            _ ->
+              Node msg treeMsg Empty
+        _ ->
+          Node msg treeMsg Empty
     Number n ->
       case treeMsg of
         Node oldMsg left right ->
-          Node oldMsg left (Node msg Empty Empty)
+          insertRightMost msg treeMsg
+          -- Node oldMsg left (Node msg Empty Empty)
         Empty ->
           Node msg Empty Empty
-
-listToMap: List Msg -> TreeMsg
-listToMap msgs =
-  Node (Op None) Empty Empty
 
 calcTreeMap: TreeMsg -> Float
 calcTreeMap treeMsg =
@@ -138,7 +161,7 @@ calcTreeMap treeMsg =
               0
         Number n ->
           n
-    Empty -> 0
+    Empty -> 0 -- IT should not reach this case
 
 
 foldExpr: Msg -> ExpressionHelper -> ExpressionHelper

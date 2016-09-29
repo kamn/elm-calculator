@@ -155,7 +155,17 @@ calcNewValue val model =
 -- TODO We don't want to append an additional operation. Unless it is Subsstraction to become negative
 appendOperation : Operation -> Model -> Model
 appendOperation o model =
-  {model | list = (Op o) :: model.list}
+    case List.head model.list of
+      Nothing -> model
+      Just value ->
+        case value of
+          Number n ->{model | list = (Op o) :: model.list}
+          Op o ->
+            case o of
+              Subtraction ->
+                model
+              _ ->
+                model
 
 update: Msg -> Model -> Model
 update msg model =

@@ -6,6 +6,7 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Array as Array
 import String as String
+import Debug as Debug
 
 -- STYLES
 centerStyle : List (String, String)
@@ -98,14 +99,46 @@ ensureListWithZero model =
 --      2   5
 -- Then we could recurse down each side to get a good result
 
-type TreeMsg
-  = Empty
-  | Node Msg (TreeMsg) (TreeMsg)
+type TreeMsg =
+  Empty
+  | Node Msg TreeMsg TreeMsg
+
+insert: Msg -> TreeMsg -> TreeMsg
+insert msg treeMsg =
+  case msg of
+    Op o ->
+      Node msg treeMsg Empty
+    Number n ->
+      case treeMsg of
+        Node oldMsg left right ->
+          Node oldMsg left (Node msg Empty Empty)
+        Empty ->
+          Node msg Empty Empty
 
 listToMap: List Msg -> TreeMsg
 listToMap msgs =
-  Empty
+  Node (Op None) Empty Empty
 
+calcTreeMap: TreeMsg -> Float
+calcTreeMap treeMsg =
+  case treeMsg of
+    Node msg left right ->
+      case msg of
+        Op o ->
+          case o of
+            Subtraction ->
+              (calcTreeMap left) - (calcTreeMap right)
+            Addition ->
+              (calcTreeMap left) + (calcTreeMap right)
+            Multiplication ->
+              (calcTreeMap left) * (calcTreeMap right)
+            Division ->
+              (calcTreeMap left) / (calcTreeMap right)
+            _ -> -- What to do in this case?
+              0
+        Number n ->
+          n
+    Empty -> 0
 
 
 foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
@@ -129,9 +162,14 @@ increaseDecimalOffset model =
 
 calcExpression: List Msg -> Msg
 calcExpression list =
-  list
+  {-list
     |> List.foldr foldExpr defaultExprHelper
-    |> exprToMsg
+    |> exprToMsg-}
+    list
+    |> List.foldr insert Empty
+    |> Debug.log "Tree"
+    |> calcTreeMap
+    |> Number
 
 calcNewValue: Float -> Model -> Model
 calcNewValue val model =

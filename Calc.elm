@@ -56,19 +56,6 @@ baseModel =
   }
 
 -- Update
-
-type alias ExpressionHelper =
-  {
-    value: Float,
-    operation: Operation
-  }
-
-defaultExprHelper = {value = 0, operation = None}
-
-exprToMsg: ExpressionHelper -> Msg
-exprToMsg expr =
-  Number expr.value
-
 -- TODO: Doc
 tailOfList: Model -> Model
 tailOfList model =
@@ -90,13 +77,6 @@ ensureListWithZero model =
 
 -- The list fold does not work well for order of operations
 -- A better alternative would be building a tree then calculating off of the tree
--- Ex.
--- 1 - 2 * 5
---      -
---    /  \
---  1     *
---       / \
---      2   5
 -- Then we could recurse down each side to get a good result
 
 type TreeMsg =
@@ -163,31 +143,12 @@ calcTreeMap treeMsg =
           n
     Empty -> 0 -- IT should not reach this case
 
-
-foldExpr: Msg -> ExpressionHelper -> ExpressionHelper
-foldExpr msg expr =
-  case msg of
-    Number n ->
-      case expr.operation of
-        Addition -> {expr | value = expr.value + n}
-        Subtraction -> {expr | value = expr.value - n}
-        Multiplication -> {expr | value = n * expr.value}
-        Division -> {expr | value = n + expr.value}
-        Clear -> {expr | value = n}
-        None -> {expr | value = n}
-        _ -> expr
-    Op o ->
-      {expr | operation = o}
-
 increaseDecimalOffset: Model -> Model
 increaseDecimalOffset model =
   {model | decimalOffset = model.decimalOffset * 10}
 
 calcExpression: List Msg -> Msg
 calcExpression list =
-  {-list
-    |> List.foldr foldExpr defaultExprHelper
-    |> exprToMsg-}
     list
     |> List.foldr insert Empty
     |> Debug.log "Tree"

@@ -32,10 +32,15 @@ btnStyle =
 type Msg = Number Float | Op Operation
 
 type Operation =
-  Addition | Subtraction
-  | Multiplication | Division
-  | None | ClearLast | Calculate
-  | Dot | Clear
+  Addition
+  | Subtraction
+  | Multiplication
+  | Division
+  | None
+  | ClearLast
+  | Calculate
+  | Dot
+  | Clear
 
 
 type alias Model =
@@ -81,15 +86,18 @@ ensureListWithZero model =
 
 type TreeMsg =
   Empty
-  | Node Msg TreeMsg TreeMsg
+  | Leaf Float
+  | Node Operation TreeMsg TreeMsg
 
-insertRightMost: Msg -> TreeMsg -> TreeMsg
-insertRightMost msg treeMsg =
+insertRightMost: Float -> TreeMsg -> TreeMsg
+insertRightMost n treeMsg =
   case treeMsg of
     Node oldMsg left right ->
-      Node oldMsg left (insertRightMost msg right)
+      Node oldMsg left (insertRightMost n right)
+    Leaf oldNum->
+      Leaf n
     Empty ->
-      Node msg Empty Empty
+      Leaf n
 
 insert: Msg -> TreeMsg -> TreeMsg
 insert msg treeMsg =
@@ -97,50 +105,46 @@ insert msg treeMsg =
     Op o ->
       case o of
         Subtraction ->
-          Node msg treeMsg Empty
+          Node o treeMsg Empty
         Addition ->
-          Node msg treeMsg Empty
+          Node o treeMsg Empty
         Multiplication ->
           case treeMsg of
             Node oldMsg left right ->
-              Debug.log "Multiplication" (Node oldMsg left (Node msg right Empty))
+              Debug.log "Multiplication" (Node oldMsg left (Node o right Empty))
             _ ->
-              Node msg treeMsg Empty
+              Node o treeMsg Empty
         Division ->
           case treeMsg of
             Node oldMsg left right ->
-              Node oldMsg left (Node msg right Empty)
+              Node oldMsg left (Node o right Empty)
             _ ->
-              Node msg treeMsg Empty
+              Node o treeMsg Empty
         _ ->
-          Node msg treeMsg Empty
+          Node o treeMsg Empty
     Number n ->
       case treeMsg of
         Node oldMsg left right ->
-          insertRightMost msg treeMsg
-          -- Node oldMsg left (Node msg Empty Empty)
-        Empty ->
-          Node msg Empty Empty
+          insertRightMost n treeMsg
+        Leaf oldNum -> Leaf n
+        Empty -> Leaf n
 
 calcTreeMap: TreeMsg -> Float
 calcTreeMap treeMsg =
   case treeMsg of
-    Node msg left right ->
-      case msg of
-        Op o ->
-          case o of
-            Subtraction ->
-              (calcTreeMap left) - (calcTreeMap right)
-            Addition ->
-              (calcTreeMap left) + (calcTreeMap right)
-            Multiplication ->
-              (calcTreeMap left) * (calcTreeMap right)
-            Division ->
-              (calcTreeMap left) / (calcTreeMap right)
-            _ -> -- What to do in this case?
-              0
-        Number n ->
-          n
+    Node o left right ->
+      case o of
+        Subtraction ->
+          (calcTreeMap left) - (calcTreeMap right)
+        Addition ->
+          (calcTreeMap left) + (calcTreeMap right)
+        Multiplication ->
+          (calcTreeMap left) * (calcTreeMap right)
+        Division ->
+          (calcTreeMap left) / (calcTreeMap right)
+        _ -> -- What to do in this case?
+          0
+    Leaf f -> f
     Empty -> 0 -- IT should not reach this case
 
 increaseDecimalOffset: Model -> Model

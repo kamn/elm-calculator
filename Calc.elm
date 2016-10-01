@@ -266,8 +266,6 @@ view: Model -> Html Msg
 view model =
   div [style centerStyle] [
     div [] [
-      div [] [text (toString model)],
-      div [] [text (toString model.list)],
       div [style alignTextRight] [text (listToString model.list)],
       div [] [calcBtn "(" (Op None),
               calcBtn ")" (Op None),

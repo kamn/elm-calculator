@@ -99,6 +99,22 @@ insertRightMost n treeMsg =
     Empty ->
       Leaf n
 
+getOrderOfOpMsg: Msg -> Float
+getOrderOfOpMsg msg =
+  case msg of
+    Op o ->
+      getOrderOfOp o
+    _ -> 0
+
+getOrderOfOp: Operation -> Float
+getOrderOfOp op =
+  case op of
+    Subtraction -> 1
+    Addition -> 1
+    Multiplication -> 2
+    Division -> 2
+    _ -> 0
+
 insert: Msg -> TreeMsg -> TreeMsg
 insert msg treeMsg =
   case msg of
@@ -111,13 +127,19 @@ insert msg treeMsg =
         Multiplication ->
           case treeMsg of
             Node oldMsg left right ->
-              Debug.log "Multiplication" (Node oldMsg left (Node o right Empty))
+              if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
+                Node o treeMsg Empty
+              else
+                Node oldMsg left (Node o right Empty)
             _ ->
               Node o treeMsg Empty
         Division ->
           case treeMsg of
             Node oldMsg left right ->
-              Node oldMsg left (Node o right Empty)
+              if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
+                Node o treeMsg Empty
+              else
+                Node oldMsg left (Node o right Empty)
             _ ->
               Node o treeMsg Empty
         _ ->

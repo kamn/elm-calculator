@@ -36,6 +36,8 @@ type Operation =
   | Subtraction
   | Multiplication
   | Division
+  | ParensOpen
+  | ParensClose
   | None
   | ClearLast
   | Calculate
@@ -78,7 +80,8 @@ ensureListWithZero: Model -> Model
 ensureListWithZero model =
   if List.isEmpty model.list then
     {model | list = [Number 0]}
-  else model
+  else
+    model
 
 -- The list fold does not work well for order of operations
 -- A better alternative would be building a tree then calculating off of the tree
@@ -115,33 +118,30 @@ getOrderOfOp op =
     Division -> 2
     _ -> 0
 
+orderOfOpInsert: Operation -> TreeMsg -> TreeMsg
+orderOfOpInsert o treeMsg =
+  case treeMsg of
+    Node oldMsg left right ->
+      if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
+        Node o treeMsg Empty
+      else
+        Node oldMsg left (Node o right Empty)
+    _ ->
+      Node o treeMsg Empty
+
 insert: Msg -> TreeMsg -> TreeMsg
 insert msg treeMsg =
   case msg of
     Op o ->
       case o of
         Subtraction ->
-          Node o treeMsg Empty
+          orderOfOpInsert o treeMsg
         Addition ->
-          Node o treeMsg Empty
+          orderOfOpInsert o treeMsg
         Multiplication ->
-          case treeMsg of
-            Node oldMsg left right ->
-              if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
-                Node o treeMsg Empty
-              else
-                Node oldMsg left (Node o right Empty)
-            _ ->
-              Node o treeMsg Empty
+          orderOfOpInsert o treeMsg
         Division ->
-          case treeMsg of
-            Node oldMsg left right ->
-              if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
-                Node o treeMsg Empty
-              else
-                Node oldMsg left (Node o right Empty)
-            _ ->
-              Node o treeMsg Empty
+          orderOfOpInsert o treeMsg
         _ ->
           Node o treeMsg Empty
     Number n ->
@@ -207,7 +207,7 @@ appendOperation o model =
       Nothing -> model
       Just value ->
         case value of
-          Number n ->{model | list = (Op o) :: model.list}
+          Number n -> {model | list = (Op o) :: model.list}
           Op o ->
             case o of
               Subtraction ->
@@ -232,6 +232,10 @@ update msg model =
           |> ensureListWithZero
         Dot ->
           {model | decimal = (not model.decimal)}
+        ParensOpen ->
+          {model | list = (Op o) :: model.list}
+        ParensClose ->
+          {model | list = (Op o) :: model.list}
         _ ->
           appendOperation o model
 
@@ -248,6 +252,8 @@ msgToString msg =
         Subtraction -> "-"
         Multiplication -> "*"
         Division -> "/"
+        ParensOpen -> "("
+        ParensClose -> ")"
         _ -> ""
 
 listToString: List Msg -> String
@@ -267,8 +273,8 @@ view model =
   div [style centerStyle] [
     div [] [
       div [style alignTextRight] [text (listToString model.list)],
-      div [] [calcBtn "(" (Op None),
-              calcBtn ")" (Op None),
+      div [] [calcBtn "(" (Op ParensOpen),
+              calcBtn ")" (Op ParensClose),
               calcBtn "C" (Op Clear),
               calcBtn "CE" (Op ClearLast)],
       div [] [calcBtn "7" (Number 7),

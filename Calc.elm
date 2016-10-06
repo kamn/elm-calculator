@@ -91,6 +91,7 @@ type TreeMsg =
   Empty
   | Leaf Float
   | Node Operation TreeMsg TreeMsg
+  | SubGroup (List Msg)
 
 insertRightMost: Float -> TreeMsg -> TreeMsg
 insertRightMost n treeMsg =
@@ -101,6 +102,8 @@ insertRightMost n treeMsg =
       Leaf n
     Empty ->
       Leaf n
+    SubGroup l ->
+      SubGroup (Number n :: l)
 
 getOrderOfOpMsg: Msg -> Float
 getOrderOfOpMsg msg =
@@ -150,6 +153,7 @@ insert msg treeMsg =
           insertRightMost n treeMsg
         Leaf oldNum -> Leaf n
         Empty -> Leaf n
+        SubGroup l -> SubGroup (msg :: l) -- TODO: Do I need to reverse later?
 
 calcTreeMap: TreeMsg -> Float
 calcTreeMap treeMsg =
@@ -168,6 +172,7 @@ calcTreeMap treeMsg =
           0
     Leaf f -> f
     Empty -> 0 -- IT should not reach this case
+    SubGroup l -> 0 -- IT should not reach this case
 
 increaseDecimalOffset: Model -> Model
 increaseDecimalOffset model =

@@ -115,6 +115,8 @@ getOrderOfOpMsg msg =
 getOrderOfOp: Operation -> Float
 getOrderOfOp op =
   case op of
+    ParensOpen -> 10
+    ParensClose -> 10
     Subtraction -> 1
     Addition -> 1
     Multiplication -> 2
@@ -125,10 +127,14 @@ orderOfOpInsert: Operation -> TreeMsg -> TreeMsg
 orderOfOpInsert o treeMsg =
   case treeMsg of
     Node oldMsg left right ->
-      if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
-        Node o treeMsg Empty
-      else
-        Node oldMsg left (Node o right Empty)
+      case right of
+        SubGroup l ->
+          Node oldMsg left  (SubGroup ((Op o) :: l))
+        _ ->
+          if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
+            Node o treeMsg Empty
+          else
+            Node oldMsg left (Node o right Empty)
     _ ->
       Node o treeMsg Empty
 
@@ -145,6 +151,21 @@ insert msg treeMsg =
           orderOfOpInsert o treeMsg
         Division ->
           orderOfOpInsert o treeMsg
+        ParensOpen ->
+          case treeMsg of
+            Node oldMsg left right ->
+                Node oldMsg left (SubGroup [])
+            _ ->
+              Node o treeMsg Empty
+        ParensClose ->
+          case treeMsg of
+            Node oldMsg left right ->
+              case right of
+                SubGroup l ->
+                  Node oldMsg left (List.foldr insert Empty l)
+                _ -> Node o treeMsg Empty
+            _ ->
+              Node o treeMsg Empty
         _ ->
           Node o treeMsg Empty
     Number n ->

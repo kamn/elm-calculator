@@ -1,4 +1,3 @@
---module Model exposing (Msg (..), Operation (..), Model)
 module Model exposing (..)
 
 type Msg = Number Float | Op Operation

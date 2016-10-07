@@ -7,6 +7,10 @@ import Html.Events exposing (onClick)
 import Array as Array
 import String as String
 import Debug as Debug
+-- import View exposing (view)
+import Model exposing (Msg (Number, Op),
+  Operation (Addition, Subtraction, Multiplication, Division, ParensOpen, ParensClose, None, ClearLast, Calculate, Dot, Clear),
+  Model)
 
 -- STYLES
 centerStyle : List (String, String)
@@ -27,36 +31,10 @@ btnStyle =
     ("border-radius", "2px"),
     ("background-color", "rgba(158,158,158,.2)")]
 
-
--- MODEL
-type Msg = Number Float | Op Operation
-
-type Operation =
-  Addition
-  | Subtraction
-  | Multiplication
-  | Division
-  | ParensOpen
-  | ParensClose
-  | None
-  | ClearLast
-  | Calculate
-  | Dot
-  | Clear
-
-
-type alias Model =
-  {
-    list : List Msg,
-    history : List (List Msg),
-    decimal: Bool,
-    decimalOffset: Float
-  }
-
 baseModel: Model
 baseModel =
   {
-    list = [Number 0],
+    list = [Model.Number 0],
     history = [],
     decimal = False,
     decimalOffset = 10
@@ -108,9 +86,8 @@ insertRightMost n treeMsg =
 getOrderOfOpMsg: Msg -> Float
 getOrderOfOpMsg msg =
   case msg of
-    Op o ->
-      getOrderOfOp o
-    _ -> 0
+    Op o -> getOrderOfOp o
+    _ ->    0
 
 getOrderOfOp: Operation -> Float
 getOrderOfOp op =
@@ -265,9 +242,7 @@ update msg model =
         _ ->
           appendOperation o model
 
-
 -- VIEW
-
 msgToString: Msg -> String
 msgToString msg =
   case msg of

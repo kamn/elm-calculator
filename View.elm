@@ -76,6 +76,6 @@ view model =
               calcBtn "3" (Number 3),
               calcBtn "-" (Op Subtraction)],
       div [] [calcBtn "0" (Number 0),
-              calcBtn "." (Op Dot),
+              calcBtn "." (Op None),
               calcBtn "=" (Op Calculate),
               calcBtn "+" (Op Addition)]]]

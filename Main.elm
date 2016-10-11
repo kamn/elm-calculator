@@ -50,7 +50,7 @@ type TreeMsg =
   Empty
   | Leaf Float
   | Node Operation TreeMsg TreeMsg
-  | SubGroup (List Msg)
+  | SubGroup (List Msg) TreeMsg
 
 insertRightMost: Float -> TreeMsg -> TreeMsg
 insertRightMost n treeMsg =
@@ -61,8 +61,13 @@ insertRightMost n treeMsg =
       Leaf n
     Empty ->
       Leaf n
-    SubGroup l ->
-      SubGroup (Number n :: l)
+    SubGroup l t ->
+      case t of
+        Empty ->
+          SubGroup (Number n :: l) t
+        SubGroup a b ->
+          SubGroup l (insertRightMost n t)
+        _ -> SubGroup (Number n :: l) t
 
 getOrderOfOpMsg: Msg -> Float
 getOrderOfOpMsg msg =
@@ -86,8 +91,10 @@ orderOfOpInsert o treeMsg =
   case treeMsg of
     Node oldMsg left right ->
       case right of
-        SubGroup l ->
-          Node oldMsg left  (SubGroup ((Op o) :: l))
+        SubGroup l t ->
+          case t of
+            SubGroup a b -> SubGroup l (orderOfOpInsert o t)
+            _ -> Node oldMsg left  (SubGroup ((Op o) :: l) t)
         _ ->
           if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
             Node o treeMsg Empty
@@ -112,15 +119,19 @@ insert msg treeMsg =
         ParensOpen ->
           case treeMsg of
             Node oldMsg left right ->
-                Node oldMsg left (SubGroup [])
-            _ ->
-              Node o treeMsg Empty
+              case right of
+                SubGroup a b -> SubGroup a (insert msg b)
+                _ -> Node oldMsg left (SubGroup [] Empty)
+            SubGroup l t -> SubGroup l (insert msg t)
+            _ -> Node o treeMsg Empty
         ParensClose ->
           case treeMsg of
             Node oldMsg left right ->
               case right of
-                SubGroup l ->
-                  Node oldMsg left (List.foldr insert Empty l)
+                SubGroup l t ->
+                  case t of
+                    SubGroup a b -> SubGroup a (insert msg t)
+                    _ -> Node oldMsg left (List.foldr insert Empty l)
                 _ -> Node o treeMsg Empty
             _ ->
               Node o treeMsg Empty
@@ -132,7 +143,7 @@ insert msg treeMsg =
           insertRightMost n treeMsg
         Leaf oldNum -> Leaf n
         Empty -> Leaf n
-        SubGroup l -> SubGroup (msg :: l) -- TODO: Do I need to reverse later?
+        SubGroup l t -> SubGroup (msg :: l) t -- TODO: Do I need to reverse later?
 
 calcTreeMap: TreeMsg -> Float
 calcTreeMap treeMsg =
@@ -151,7 +162,7 @@ calcTreeMap treeMsg =
           0
     Leaf f -> f
     Empty -> 0 -- IT should not reach this case
-    SubGroup l -> 0 -- IT should not reach this case
+    SubGroup l t -> 0 -- IT should not reach this case
 
 increaseDecimalOffset: Model -> Model
 increaseDecimalOffset model =

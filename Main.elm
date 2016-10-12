@@ -50,7 +50,7 @@ type TreeMsg =
   Empty
   | Leaf Float
   | Node Operation TreeMsg TreeMsg
-  | SubGroup (List Msg) TreeMsg
+  | SubGroup (List Msg) Int
 
 insertRightMost: Float -> TreeMsg -> TreeMsg
 insertRightMost n treeMsg =
@@ -62,12 +62,7 @@ insertRightMost n treeMsg =
     Empty ->
       Leaf n
     SubGroup l t ->
-      case t of
-        Empty ->
-          SubGroup (Number n :: l) t
-        SubGroup a b ->
-          SubGroup l (insertRightMost n t)
-        _ -> SubGroup (Number n :: l) t
+      SubGroup (Number n :: l) t
 
 getOrderOfOpMsg: Msg -> Float
 getOrderOfOpMsg msg =
@@ -91,10 +86,7 @@ orderOfOpInsert o treeMsg =
   case treeMsg of
     Node oldMsg left right ->
       case right of
-        SubGroup l t ->
-          case t of
-            SubGroup a b -> SubGroup l (orderOfOpInsert o t)
-            _ -> Node oldMsg left  (SubGroup ((Op o) :: l) t)
+        SubGroup l t -> Node oldMsg left  (SubGroup ((Op o) :: l) t)
         _ ->
           if (getOrderOfOp oldMsg) >= (getOrderOfOp o) then
             Node o treeMsg Empty
@@ -120,18 +112,17 @@ insert msg treeMsg =
           case treeMsg of
             Node oldMsg left right ->
               case right of
-                SubGroup a b -> SubGroup a (insert msg b)
-                _ -> Node oldMsg left (SubGroup [] Empty)
-            SubGroup l t -> SubGroup l (insert msg t)
+                SubGroup l n -> Node oldMsg left (SubGroup ((Op o) :: l) (n + 1))
+                _ -> Node oldMsg left (SubGroup [] 0)
             _ -> Node o treeMsg Empty
         ParensClose ->
           case treeMsg of
             Node oldMsg left right ->
               case right of
-                SubGroup l t ->
-                  case t of
-                    SubGroup a b -> SubGroup a (insert msg t)
-                    _ -> Node oldMsg left (List.foldr insert Empty l)
+                SubGroup l n ->
+                  case n of
+                    0 -> Node oldMsg left (List.foldr insert Empty l)
+                    _ -> Node oldMsg left (SubGroup ((Op o) :: l) (n - 1))
                 _ -> Node o treeMsg Empty
             _ ->
               Node o treeMsg Empty

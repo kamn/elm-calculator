@@ -23,8 +23,17 @@ btnStyle : List (String, String)
 btnStyle =
   [ ("width", "50px"),
     ("height", "50px"),
+    ("border", "1px solid transparent"),
+    ("border-color", "#AAA"),
+    ("margin", "2px"),
+    ("text-align", "center"),
     ("border-radius", "2px"),
-    ("background-color", "rgba(158,158,158,.2)")]
+    ("cursor", "pointer"),
+    ("background-color", "#FFF"),
+    ("user-select", "none"),
+    ("-webkit-user-select", "none"),
+    ("-moz-user-select", "none"),
+    ("-ms-user-select", "none")]
 
 -- VIEWS
 

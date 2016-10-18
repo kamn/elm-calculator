@@ -4,7 +4,7 @@ import Html exposing (Html, text, div, button)
 import Html.App as App
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
-import Model exposing (Msg (Number, Op),
+import Model exposing (Msg (Number, Op, Answer),
   Operation (Addition, Subtraction, Multiplication, Division, ParensOpen, ParensClose, None, ClearLast, Calculate, Dot, Clear),
   Model)
 -- STYLES
@@ -41,6 +41,7 @@ msgToString: Msg -> String
 msgToString msg =
   case msg of
     Number n -> toString n
+    Answer n -> toString n
     Op o ->
       case o of
         Addition -> "+"

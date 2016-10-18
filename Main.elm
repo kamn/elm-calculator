@@ -8,7 +8,7 @@ import Array as Array
 import String as String
 import Debug as Debug
 import View exposing (view)
-import Model exposing (Msg (Number, Op),
+import Model exposing (Msg (Number, Op, Answer),
   Operation (Addition, Subtraction, Multiplication, Division, ParensOpen, ParensClose, None, ClearLast, Calculate, Dot, Clear),
   Model)
 
@@ -135,6 +135,13 @@ insert msg treeMsg =
         Leaf oldNum -> Leaf n
         Empty -> Leaf n
         SubGroup l t -> SubGroup (msg :: l) t -- TODO: Do I need to reverse later?
+    Answer n ->
+      case treeMsg of
+        Node oldMsg left right ->
+          insertRightMost n treeMsg
+        Leaf oldNum -> Leaf n
+        Empty -> Leaf n
+        SubGroup l t -> SubGroup (msg :: l) t -- TODO: Do I need to reverse later?
 
 calcTreeMap: TreeMsg -> Float
 calcTreeMap treeMsg =
@@ -165,7 +172,7 @@ calcExpression list =
     |> List.foldr insert Empty
     |> Debug.log "Tree"
     |> calcTreeMap
-    |> Number
+    |> Answer
 
 calcNewValue: Float -> Model -> Model
 calcNewValue val model =
@@ -183,6 +190,8 @@ calcNewValue val model =
             model
             |> tailOfList
             |> appendNumber (Number ((n * 10) + val))
+        Answer n ->
+          {model | list = [Number val]}
         Op o ->
           {model | list = (Number val) :: model.list}
 
@@ -194,6 +203,7 @@ appendOperation o model =
       Just value ->
         case value of
           Number n -> {model | list = (Op o) :: model.list}
+          Answer n -> {model | list = (Op o) :: model.list}
           Op o ->
             case o of
               Subtraction ->
@@ -206,6 +216,8 @@ update msg model =
   case msg of
     Number n ->
       calcNewValue n model
+    Answer n ->
+      {model | list = [Number n]}
     Op o ->
       case o of
         None -> model

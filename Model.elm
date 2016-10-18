@@ -1,6 +1,6 @@
 module Model exposing (..)
 
-type Msg = Number Float | Op Operation
+type Msg = Number Float | Op Operation | Answer Float
 
 type Operation =
   Addition

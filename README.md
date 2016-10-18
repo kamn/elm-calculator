@@ -7,6 +7,8 @@ The calculator can only do simple integer calculations with...
 - Multiplication
 - Division
 
+![An example gif](https://github.com/kamn/elm-calculator/raw/master/elm-calc.gif "Example")
+
 
 ## Purpose
 The purpose of this project was to try out the Elm language.
